@@ -121,7 +121,7 @@ class ByteReaderTest extends TestCase
 
         $this->expectException(\UnderflowException::class);
         $this->expectExceptionCode(ByteReader::UNDERFLOW_EX_SIGNAL);
-        $this->expectExceptionMessage('ByteReader ran out of bytes at pos 1');
+        $this->expectExceptionMessage('Attempt to read next 2 bytes, while only 1 available');
         $reader->next(2); // Try to read 2 more
     }
 

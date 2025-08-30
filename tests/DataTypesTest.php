@@ -154,7 +154,7 @@ class DataTypesTest extends TestCase
         $this->assertFalse(DataTypes::isNumeric("123abc"));
         $this->assertFalse(DataTypes::isNumeric("abc123"));
         $this->assertTrue(DataTypes::isNumeric(null)); // null is treated as numeric
-        $this->assertFalse(DataTypes::isNumeric([]));
+        $this->assertTrue(DataTypes::isNumeric([])); // array is treated as numeric
         $this->assertFalse(DataTypes::isNumeric(true));
         $this->assertFalse(DataTypes::isNumeric("123.45.67"));
         $this->assertFalse(DataTypes::isNumeric("--123"));

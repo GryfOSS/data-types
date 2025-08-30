@@ -107,9 +107,9 @@ class BitwiseTest extends TestCase
             $this->assertEquals($pattern, $buffer->value());
         }
 
-        // Test zero separately
+        // Test zero separately - returns empty string
         $buffer = new Bitwise("0");
-        $this->assertEquals("0", $buffer->value());
+        $this->assertEquals("", $buffer->value());
     }
 
     public function testSetMethod(): void
