@@ -181,6 +181,35 @@ class BcMathTest extends TestCase
         $this->assertEquals("12300", $result);
     }
 
+    public function testValueWithFloatScientificNotationPositiveExponent(): void
+    {
+        // Use a very large exponent to force e+ notation in the string representation
+        $largeFloat = 1.5e+50;
+        $stringRep = strval($largeFloat);
+        // Verify that the string representation contains E+
+        $this->assertStringContainsString("E+", $stringRep);
+
+        $result = BcMath::Value($largeFloat);
+        // This should hit the preg_match('/e\+/i', $floatAsString) branch on line 138-139
+        $this->assertIsString($result);
+        $this->assertStringStartsWith("1", $result);
+        // The result should be a very large number
+        $this->assertGreaterThan(49, strlen($result));
+    }
+
+    public function testValueWithFloatScientificNotationNegativeDetailed(): void
+    {
+        // Test the specific preg_split and calculation logic for e-
+        $smallFloat = 1.5e-6;
+        $stringRep = strval($smallFloat);
+        // Verify that the string representation contains E-
+        $this->assertStringContainsString("E-", $stringRep);
+
+        $result = BcMath::Value($smallFloat);
+        // This should hit lines 135-137 (the e- branch)
+        $this->assertStringContainsString("0.0000015", $result);
+    }
+
     public function testValueWithValidString(): void
     {
         $result = BcMath::Value("123.45");

@@ -284,4 +284,77 @@ class AbstractBufferTest extends TestCase
             return 123;
         });
     }
+
+    public function testLen(): void
+    {
+        $buffer = new Binary("test");
+        $this->assertEquals(4, $buffer->len());
+
+        $buffer->set("hello world");
+        $this->assertEquals(11, $buffer->len());
+
+        // Empty string doesn't change the buffer content
+        $buffer->set("");
+        $this->assertEquals(11, $buffer->len());
+    }
+
+    public function testCloneMethod(): void
+    {
+        $buffer = new Binary("test");
+        $cloned = $buffer->clone();
+
+        $this->assertInstanceOf(Binary::class, $cloned);
+        $this->assertNotSame($buffer, $cloned);
+        $this->assertEquals("test", $cloned->value());
+
+        // Modify original to ensure clone is independent
+        $buffer->set("modified");
+        $this->assertEquals("test", $cloned->value());
+        $this->assertEquals("modified", $buffer->value());
+    }
+
+    public function testValueWithSubstrFalse(): void
+    {
+        $buffer = new Binary("test");
+        // Force substr to return false by using invalid parameters
+        $result = $buffer->value(-100, -50);
+        $this->assertEquals("", $result);
+    }
+
+    public function testValueWithSubstrReturningFalse(): void
+    {
+        $buffer = new Binary("test");
+        // Test when substr returns an empty string that evaluates to false-ish
+        $result = $buffer->value(4, 0); // Start at end with zero length
+        $this->assertEquals("", $result);
+    }
+
+    public function testSubstrWithInvalidParameters(): void
+    {
+        $buffer = new Binary("test");
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Both start/end arguments cannot be empty');
+        $buffer->substr(null, null);
+    }
+
+    public function testEqualsWithDifferentClass(): void
+    {
+        $buffer1 = new Binary("test");
+        $buffer2 = new Base16("74657374"); // "test" in hex
+        $this->assertFalse($buffer1->equals($buffer2));
+    }
+
+    public function testEqualsWithDifferentSize(): void
+    {
+        $buffer1 = new Binary("test");
+        $buffer2 = new Binary("testing");
+        $this->assertFalse($buffer1->equals($buffer2));
+    }
+
+    public function testEqualsWithDifferentData(): void
+    {
+        $buffer1 = new Binary("test");
+        $buffer2 = new Binary("demo");
+        $this->assertFalse($buffer1->equals($buffer2));
+    }
 }

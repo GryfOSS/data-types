@@ -210,4 +210,73 @@ class ByteReaderTest extends TestCase
         $this->assertEquals("\x00\x01", $reader->next(2));
         $this->assertEquals("\x02\x03\xFF", $reader->remaining());
     }
+
+    public function testNextWithExactBytes(): void
+    {
+        $binary = new Binary("Hello");
+        $reader = new ByteReader($binary);
+
+        // Test reading exact number of bytes
+        $result = $reader->next(5);
+        $this->assertEquals("Hello", $result);
+        $this->assertEquals(5, $reader->pos());
+    }
+
+    public function testNextWithPartialRead(): void
+    {
+        $binary = new Binary("Hi");
+        $reader = new ByteReader($binary);
+        $reader->next(1); // Read 1 byte
+
+        // Try to read more than available without underflow exception
+        $result = $reader->next(5);
+        $this->assertNull($result);
+    }
+
+    public function testNextWithEmptyResult(): void
+    {
+        $binary = new Binary("");
+        $reader = new ByteReader($binary);
+
+        $result = $reader->next(1);
+        $this->assertNull($result);
+    }
+
+    public function testNextPartialReadWithLessBytes(): void
+    {
+        // Create a scenario where substr returns a string but with fewer bytes than requested
+        $binary = new Binary("Hi");
+        $reader = new ByteReader($binary);
+        $reader->next(1); // Read 1 byte, leaving only 1 byte
+
+        // Try to read 2 bytes when only 1 is available - should return null
+        $result = $reader->next(2);
+        $this->assertNull($result);
+    }
+
+    public function testNextPartialReadWithUnderflowException(): void
+    {
+        // Test the scenario where we try to read beyond available bytes with underflow enabled
+        $binary = new Binary("Hi");
+        $reader = new ByteReader($binary);
+        $reader->throwUnderflowEx();
+        $reader->next(1); // Read 1 byte, leaving only 1 byte
+
+        $this->expectException(\UnderflowException::class);
+        $this->expectExceptionCode(ByteReader::UNDERFLOW_EX_SIGNAL);
+        $this->expectExceptionMessage('Attempt to read next 2 bytes, while only 1 available');
+        $reader->next(2); // Try to read 2 bytes when only 1 is available
+    }
+
+    public function testNextWithSubstrFailure(): void
+    {
+        // Test scenario where we try to read beyond buffer bounds
+        $binary = new Binary("test");
+        $reader = new ByteReader($binary);
+        $reader->next(4); // Read all 4 bytes
+
+        // Now try to read more - should return null
+        $result = $reader->next(1);
+        $this->assertNull($result);
+    }
 }

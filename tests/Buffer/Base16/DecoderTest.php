@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GryfOSS\DataTypes\Tests\Buffer\Base16;
 
 use GryfOSS\DataTypes\BcNumber;
+use GryfOSS\DataTypes\Buffer\AbstractBuffer;
 use GryfOSS\DataTypes\Buffer\Base16;
 use GryfOSS\DataTypes\Buffer\Base16\Decoder;
 use GryfOSS\DataTypes\Buffer\Binary;
@@ -133,5 +134,22 @@ class DecoderTest extends TestCase
 
         $bitwise = $decoder->bitwise();
         $this->assertEquals("00001010", $bitwise->value());
+    }
+
+    public function testBitwiseWithNullBuffer(): void
+    {
+        // Create a buffer and force it to be empty to test the exception
+        $buffer = new Base16("00");
+        $decoder = new Decoder($buffer);
+
+        // Use reflection to force the buffer data to be empty
+        $reflection = new \ReflectionClass(AbstractBuffer::class);
+        $property = $reflection->getProperty('data');
+        $property->setAccessible(true);
+        $property->setValue($buffer, '');
+
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Base16 buffer is NULL or empty');
+        $decoder->bitwise();
     }
 }
