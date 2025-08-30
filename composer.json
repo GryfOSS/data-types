@@ -1,10 +1,14 @@
 {
-  "name": "comely-io/data-types",
-  "description": "PHP data types",
+  "name": "gryfoss/data-types",
+  "description": "PHP data types, modernised version of comely-io/data-types",
   "type": "library",
-  "homepage": "https://github.com/comely-io/data-types",
   "license": "MIT",
   "authors": [
+      {
+      "name": "IDCT Bartosz Pachołek",
+      "email": "bartosz+github@idct.tech",
+      "role": "Developer"
+    },
     {
       "name": "Furqan A. Siddiqui",
       "email": "hello@furqansiddiqui.com",
@@ -13,16 +17,28 @@
     }
   ],
   "require": {
-    "php": "^7.2",
+    "php": "^8",
     "ext-bcmath": "*",
     "ext-mbstring": "*"
   },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0"
+  },
   "autoload": {
     "psr-4": {
-      "Comely\\DataTypes\\": [
+      "GryfOSS\\DataTypes\\": [
         "src"
       ]
     }
   },
-  "minimum-stability": "dev"
+  "autoload-dev": {
+    "psr-4": {
+      "GryfOSS\\DataTypes\\Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "stable",
+  "scripts": {
+    "test": "phpunit",
+    "test-coverage": "phpunit --coverage-html coverage/"
+  }
 }

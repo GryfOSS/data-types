@@ -1,24 +1,24 @@
 <?php
 /**
- * This file is a part of "comely-io/data-types" package.
- * https://github.com/comely-io/data-types
+ * This file is a part of "GryfOSS/data-types" package.
+ * https://github.com/GryfOSS/data-types
  *
  * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code or visit following link:
- * https://github.com/comely-io/data-types/blob/master/LICENSE
+ * https://github.com/GryfOSS/data-types/blob/master/LICENSE
  */
 
 declare(strict_types=1);
 
-namespace Comely\DataTypes;
+namespace GryfOSS\DataTypes;
 
-use Comely\DataTypes\BcMath\BcMath;
+use GryfOSS\DataTypes\BcMath\BcMath;
 
 /**
  * Class DataTypes
- * @package Comely\DataTypes
+ * @package GryfOSS\DataTypes
  */
 class DataTypes
 {
