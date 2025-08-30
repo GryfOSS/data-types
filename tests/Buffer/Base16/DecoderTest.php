@@ -152,4 +152,23 @@ class DecoderTest extends TestCase
         $this->expectExceptionMessage('Base16 buffer is NULL or empty');
         $decoder->bitwise();
     }
+
+    public function testBitwiseWithOddNumberOfSymbols(): void
+    {
+        // Create a Base16 buffer and manually set it to have an odd number of symbols
+        $buffer = new Base16("ab");
+        $decoder = new Decoder($buffer);
+
+        // Use reflection to force the buffer data to have odd number of symbols
+        $reflection = new \ReflectionClass(AbstractBuffer::class);
+        $property = $reflection->getProperty('data');
+        $property->setAccessible(true);
+        $property->setValue($buffer, 'abc'); // 3 symbols (odd)
+
+        $bitwise = $decoder->bitwise();
+
+        // Should pad with leading zero: 'abc' becomes '0abc'
+        // 0abc in hex = 2748 in decimal = 001010111100 in binary (padded to 16 bits)
+        $this->assertEquals("0000101010111100", $bitwise->value());
+    }
 }
