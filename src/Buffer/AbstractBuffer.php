@@ -218,7 +218,7 @@ abstract class AbstractBuffer implements \Serializable
         $data = $this->data;
         if (is_int($start)) {
             $data = is_int($length) ? substr($data, $start, $length) : substr($data, $start);
-            if ($data === false) {
+            if (empty($data)) {
                 return null;
             }
         }
@@ -266,7 +266,7 @@ abstract class AbstractBuffer implements \Serializable
         $data = $this->data;
         if (is_int($start)) {
             $data = is_int($length) ? substr($data, $start, $length) : substr($data, $start);
-            if ($data === false) {
+            if (empty($data)) {
                 throw new \UnexpectedValueException('Unexpected fail after applying substr');
             }
         }

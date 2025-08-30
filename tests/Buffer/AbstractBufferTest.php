@@ -387,4 +387,65 @@ class AbstractBufferTest extends TestCase
         $buffer->set("modified"); // This should work if not read-only
         $this->assertEquals("modified", $buffer->value());
     }
+
+    public function testDebugInfoWithManipulatedAttributes(): void
+    {
+        $buffer = new Binary("test");
+
+        // Use reflection to access AbstractBuffer's private attributes
+        $reflection = new \ReflectionClass('GryfOSS\DataTypes\Buffer\AbstractBuffer');
+
+        $lenProperty = $reflection->getProperty('len');
+        $lenProperty->setAccessible(true);
+        $lenProperty->setValue($buffer, 42);
+
+        $sizeProperty = $reflection->getProperty('size');
+        $sizeProperty->setAccessible(true);
+        $sizeProperty->setValue($buffer, 84);
+
+        // Use reflection to call AbstractBuffer's __debugInfo directly (not Binary's override)
+        $debugInfoMethod = $reflection->getMethod('__debugInfo');
+        $debugInfoMethod->setAccessible(true);
+        $debugInfo = $debugInfoMethod->invoke($buffer);
+
+        $this->assertIsArray($debugInfo);
+        $this->assertArrayHasKey('len', $debugInfo);
+        $this->assertArrayHasKey('size', $debugInfo);
+        $this->assertEquals(42, $debugInfo['len']);
+        $this->assertEquals(84, $debugInfo['size']);
+    }
+
+    public function testValueWithNullData(): void
+    {
+        $buffer = new Binary("test");
+
+        // Use reflection to access AbstractBuffer's private $data attribute
+        $reflection = new \ReflectionClass('GryfOSS\DataTypes\Buffer\AbstractBuffer');
+        $dataProperty = $reflection->getProperty('data');
+        $dataProperty->setAccessible(true);
+        $dataProperty->setValue($buffer, null);
+
+        // Test that value() returns null when $data is null (line 215)
+        $result = $buffer->value();
+        $this->assertNull($result);
+    }
+
+    public function testValueWithStartBeyondLength(): void
+    {
+        $buffer = new Binary("test");
+
+        // Test that value() returns null when start position is beyond string length (line 222)
+        $result = $buffer->value(10); // Start position 10 is beyond "test" length (4)
+        $this->assertNull($result);
+    }
+
+    public function testSubstrWithStartBeyondLength(): void
+    {
+        $buffer = new Binary("test");
+
+        // Test that substr() throws exception when start position is beyond string length (line 270)
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Unexpected fail after applying substr');
+        $buffer->substr(10); // Start position 10 is beyond "test" length (4)
+    }
 }
