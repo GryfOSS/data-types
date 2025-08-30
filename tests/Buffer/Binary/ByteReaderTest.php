@@ -306,4 +306,39 @@ class ByteReaderTest extends TestCase
         $result = $reader->next(1);
         $this->assertNull($result);
     }
+
+    public function testNextUnderflowExceptionOnSubstrFailure(): void
+    {
+        // Test lines 126-129: second underflow exception when substr fails but throwUnderflowEx is true
+        $binary = new Binary("A"); // Single byte buffer
+        $reader = new ByteReader($binary);
+        $reader->throwUnderflowEx(); // Enable underflow exceptions
+
+        // Use reflection to manipulate internal state
+        $reflection = new \ReflectionClass(ByteReader::class);
+
+        // Set len to 9 (higher than actual buffer length)
+        $lenProperty = $reflection->getProperty('len');
+        $lenProperty->setAccessible(true);
+        $lenProperty->setValue($reader, 9);
+
+        // Set pointer to 1 (low value)
+        $pointerProperty = $reflection->getProperty('pointer');
+        $pointerProperty->setAccessible(true);
+        $pointerProperty->setValue($reader, 1);
+
+        // Set buffer to empty string
+        $bufferProperty = $reflection->getProperty('buffer');
+        $bufferProperty->setAccessible(true);
+        $bufferProperty->setValue($reader, '');
+
+        // Now call next(1) - this should:
+        // 1. Pass the first check: (1 + 1) <= 9 is true
+        // 2. substr('', 1, 1) returns empty string
+        // 3. Trigger the second underflow exception on lines 126-129
+        $this->expectException(\UnderflowException::class);
+        $this->expectExceptionCode(ByteReader::UNDERFLOW_EX_SIGNAL);
+        $this->expectExceptionMessage('ByteReader ran out of bytes at pos 1');
+        $reader->next(1);
+    }
 }
