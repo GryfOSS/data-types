@@ -32,7 +32,7 @@ class Base64 extends AbstractBuffer
             throw new \InvalidArgumentException('First argument must be a Base64 encoded string');
         }
 
-        $decoded = base64_decode($data);
+        $decoded = base64_decode($data, strict: true);
         if ($decoded === false) {
             throw new \UnexpectedValueException('Base64 decode failed');
         }

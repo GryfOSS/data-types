@@ -357,4 +357,34 @@ class AbstractBufferTest extends TestCase
         $buffer2 = new Binary("demo");
         $this->assertFalse($buffer1->equals($buffer2));
     }
+
+    public function testDebugInfo(): void
+    {
+        $buffer = new Binary("test");
+        $debugInfo = $buffer->__debugInfo();
+        $this->assertIsArray($debugInfo);
+        $this->assertArrayHasKey('data', $debugInfo);
+        $this->assertArrayHasKey('size', $debugInfo);
+        $this->assertArrayHasKey('bits', $debugInfo);
+        $this->assertEquals(4, $debugInfo['size']);
+        $this->assertEquals(32, $debugInfo['bits']);
+    }
+
+    public function testCloneMagicMethod(): void
+    {
+        $buffer = new Binary("test");
+        $cloned = clone $buffer;
+        $this->assertEquals($buffer->value(), $cloned->value());
+        $this->assertNotSame($buffer, $cloned);
+    }
+
+    public function testReadOnlyWithParameterFalse(): void
+    {
+        $buffer = new Binary("test");
+        $result = $buffer->readOnly(false);
+        $this->assertSame($buffer, $result);
+        // The buffer should not be read-only after this call
+        $buffer->set("modified"); // This should work if not read-only
+        $this->assertEquals("modified", $buffer->value());
+    }
 }

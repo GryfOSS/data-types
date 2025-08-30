@@ -279,4 +279,31 @@ class ByteReaderTest extends TestCase
         $result = $reader->next(1);
         $this->assertNull($result);
     }
+
+    public function testNextWithPartialSubstrResult(): void
+    {
+        // Test the edge case where substr returns a string but not the expected length
+        // This tests the condition: if(strlen($read) === $bytes) else branch
+        $binary = new Binary("Hi");
+        $reader = new ByteReader($binary);
+        $reader->next(1); // Read 1 byte, pointer now at position 1
+
+        // Try to read 5 bytes when only 1 is available
+        // substr will return "i" (1 byte) but we requested 5 bytes
+        // This should trigger the strlen($read) !== $bytes condition
+        $result = $reader->next(5);
+        $this->assertNull($result); // Should return null when throwUnderflowEx is false
+    }
+
+    public function testNextWithEmptySubstrButNonZeroRequest(): void
+    {
+        // Test case where substr returns empty string
+        $binary = new Binary("A");
+        $reader = new ByteReader($binary);
+        $reader->next(1); // Read the only byte, pointer at end
+
+        // Try to read beyond end - substr returns empty string
+        $result = $reader->next(1);
+        $this->assertNull($result);
+    }
 }
