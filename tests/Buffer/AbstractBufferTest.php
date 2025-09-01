@@ -250,8 +250,9 @@ class AbstractBufferTest extends TestCase
     {
         $buffer = new Binary("test");
         // substr with invalid range returns the original buffer, no exception
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Unexpected fail after applying substr');
         $result = $buffer->substr(10, 5);
-        $this->assertEquals("test", $result->value());
     }
 
     public function testEquals(): void
